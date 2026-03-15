@@ -4,14 +4,14 @@ import View from 'ol/View.js';
 import Feature from 'ol/Feature.js';
 import Point from 'ol/geom/Point.js';
 
-import Geocoder from 'ol-geocoder';
-import Popup from 'ol-popup';
-import axios from 'axios';
-
 import { fromLonLat, toLonLat } from 'ol/proj.js';
 import { Circle as CircleStyle, Stroke, Style, Fill, Text } from 'ol/style.js';
 import { OSM, Vector as VectorSource } from 'ol/source.js';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer.js';
+
+import Geocoder from 'ol-geocoder/dist/ol-geocoder.js';
+import Popup from 'ol-popup';
+import axios from 'axios';
 
 import { trilaterate, fromLonLat_epsg4978, toLonLat_epsg4978 } from './trilaterate.js';
 import SnailShellMatrix from './SnailShellMatrix.js';
