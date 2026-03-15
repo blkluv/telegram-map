@@ -28,7 +28,7 @@
 
   "scripts": {
     "dev": "parcel ./web-src/index.html --public-url / --dist-dir ./web-build/",
-    "build": "parcel build ./web-src/index.html --public-url / --dist-dir ./web-build/",
+    "build": "parcel build ./web-src/index.html --no-scope-hoist --public-url / --dist-dir ./web-build/"
     "start": "node server.js"
   },
 
