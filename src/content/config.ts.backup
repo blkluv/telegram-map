@@ -1,0 +1,39 @@
+import { defineCollection, z } from "astro:content";
+
+const actionButtonSchema = z.object({
+  text: z.string(),
+  url: z.string(),
+  newTab: z.boolean().optional().default(false),
+});
+
+const blogSchema = ({ image }: { image: any }) =>
+  z.object({
+    title: z.string(),
+    description: z.string(),
+    publicationDate: z.coerce.date(),
+    conceptionDate: z.coerce.date().optional(),
+    writtenDate: z.coerce.date().optional(),
+    revisionDate: z.coerce.date().optional(),
+    // FIX: Removed .refine() so images of any size are accepted
+    image: image().optional(),
+    imageAlt: z.string().optional(),
+    tags: z.array(z.string()).optional(),
+    sortOrder: z.number().optional(),
+    draft: z.boolean().default(false),
+    hidden: z.boolean().default(false),
+    actionButtons: z.array(actionButtonSchema).optional(),
+  });
+
+// Primary blog collection used for the real site content
+const blog = defineCollection({
+  type: "content",
+  schema: blogSchema,
+});
+
+// Test-only blog collection that lives in src/content/blog-test and uses the exact same schema
+const blogTest = defineCollection({
+  type: "content",
+  schema: blogSchema,
+});
+
+export const collections = { blog, "blog-test": blogTest };

@@ -1,0 +1,419 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  CREMARKET COLOR SCHEME
+  Deep Navy (Top-Left): #001A3D
+  Vibrant Blue (Mid-Left): #0055FF
+  Royal Purple (Top-Right): #4C0082
+  Magenta/Pink (Mid-Right): #C20083
+  Soft Red (Bottom-Center): #E63946
+*/
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    
+    /* CREMARKET COLORS */
+    /* Primary: The Vibrant Blue/Cyan from the left */
+    --primary: #00D1FF;       
+    --primary-100: #70E7FF;
+    --primary-200: #00D1FF;
+    --primary-300: #0099CC;
+    --primary-content: #FFFFFF;
+    
+    /* Secondary: The Magenta/Purple from the right */
+    --secondary: #C20083;
+    --secondary-100: #FF4DBA;
+    --secondary-200: #C20083;
+    --secondary-300: #8A005D;
+    --secondary-content: #FFFFFF;
+    
+    /* Accent: The bright white from the logo */
+    --accent: #FFFFFF;
+    --accent-content: #000000;
+    
+    /* Base/Backgrounds - Derived from the image corners */
+    --base-100: #06031A; /* Very deep dark navy */
+    --base-200: #0E0A2D; /* Deep purple-blue */
+    --base-300: #1A1340; /* Lighter purple-blue */
+    --base-content: #FFFFFF;
+    
+    /* Neutrals - For UI elements */
+    --neutral-100: #0A0725;
+    --neutral-200: #120E33;
+    --neutral-300: #1F1947;
+    --neutral-content: #FFFFFF;
+    
+    /* Gradient Background Variables */
+    --bg-top-left: #001A3D;
+    --bg-top-right: #4C0082;
+    --bg-bottom: #06031A;
+    
+    /* BORDER COLORS */
+    --border-blue: #00D1FF;
+    --border-purple: #C20083;
+    --border-red: #E63946;
+    --border-accent: #FFFFFF;
+  }
+
+  body {
+    font-family: theme('fontFamily.sans'), system-ui, -apple-system, sans-serif;
+    /* This creates the multi-directional "Aura" effect */
+    background: radial-gradient(circle at top left, var(--bg-top-left), transparent 50%),
+                radial-gradient(circle at top right, var(--bg-top-right), transparent 50%),
+                linear-gradient(to bottom, #06031A, #06031A);
+    background-color: var(--base-100);
+    color: var(--base-content);
+    min-height: 100vh;
+    background-attachment: fixed;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.02em;
+  }
+  
+  /* Apply consistent border colors to all elements */
+  * {
+    border-color: var(--border-blue) / 0.3 !important;
+  }
+  
+  /* Specific overrides for purple/red borders */
+  .border-purple, 
+  .menu-card:hover,
+  .btn-primary:hover,
+  .btn-secondary,
+  .nav-item.active,
+  footer,
+  hr,
+  .divider,
+  .highlight-box,
+  .prose h2,
+  .video-portrait:hover,
+  .video-container-cremarket:hover {
+    border-color: var(--border-purple) !important;
+  }
+  
+  .border-red {
+    border-color: var(--border-red) !important;
+  }
+}
+
+@layer components {
+  /* CREMARKET-style Card with blur effect */
+  .menu-card {
+    background-color: rgba(14, 10, 45, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+  
+  .menu-card:hover {
+    border-color: var(--border-purple) !important;
+    box-shadow: 0 0 30px rgba(194, 0, 131, 0.2);
+    transform: translateY(-4px);
+  }
+
+  /* Gradient Text - Blue to Purple */
+  .cremarket-gradient {
+    background: linear-gradient(90deg, #00D1FF, #C20083);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Primary Button - Blue themed */
+  .btn-primary {
+    background-color: var(--primary);
+    color: var(--primary-content);
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    font-size: 0.95rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid rgba(0, 209, 255, 0.5) !important;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--primary-300);
+    border-color: var(--border-purple) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 209, 255, 0.3);
+  }
+  
+  /* Secondary Button - Purple themed */
+  .btn-secondary {
+    background-color: var(--secondary);
+    color: var(--secondary-content);
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-weight: 700;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid rgba(194, 0, 131, 0.5) !important;
+  }
+  
+  .btn-secondary:hover {
+    background-color: var(--secondary-300);
+    border-color: var(--border-blue) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(194, 0, 131, 0.3);
+  }
+  
+  /* Typography */
+  .prose h2 {
+    color: var(--primary);
+    font-size: 1.75rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    border-bottom: 2px solid var(--border-purple) !important;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .prose h3 {
+    color: var(--secondary);
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-top: 1.5rem;
+    border-left: 4px solid var(--border-blue) !important;
+    padding-left: 1rem;
+  }
+  
+  /* Price tag with gradient */
+  .price-tag {
+    color: var(--primary);
+    font-weight: 900;
+    font-size: 1.2rem;
+    background: linear-gradient(45deg, var(--border-purple), var(--border-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Form elements */
+  input, textarea, select {
+    border: 2px solid rgba(0, 209, 255, 0.3) !important;
+    border-radius: 6px;
+    background-color: rgba(14, 10, 45, 0.6);
+    padding: 0.5rem 1rem;
+    color: var(--base-content);
+  }
+  
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--border-purple) !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(194, 0, 131, 0.2);
+  }
+  
+  /* Navigation */
+  nav {
+    border-bottom: 2px solid rgba(0, 209, 255, 0.3) !important;
+  }
+  
+  .nav-item {
+    border-bottom: 2px solid transparent !important;
+  }
+  
+  .nav-item.active {
+    border-bottom: 3px solid var(--border-purple) !important;
+  }
+  
+  /* Footer */
+  footer {
+    border-top: 3px solid var(--border-purple) !important;
+  }
+  
+  /* Images */
+  img, .property-image, .listing-image {
+    border: 3px solid rgba(0, 209, 255, 0.3) !important;
+    border-radius: 10px;
+  }
+  
+  /* Dividers */
+  hr, .divider {
+    border-color: var(--border-purple) !important;
+    border-width: 2px;
+  }
+  
+  /* Cards and containers */
+  .card, .container, .section {
+    border: 2px solid rgba(0, 209, 255, 0.2) !important;
+    border-radius: 8px;
+  }
+  
+  /* Special highlights */
+  .highlight-box, .featured {
+    border: 2px solid var(--border-purple) !important;
+    border-radius: 8px;
+  }
+
+  /* 9:16 Aspect Ratio Container (Portrait/Reels Style) */
+  .aspect-9-16 {
+    aspect-ratio: 9 / 16;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  /* Fallback for older browsers */
+  .aspect-9-16-fallback {
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+    padding-bottom: 177.77%; /* 16/9 * 100% */
+    height: 0;
+    overflow: hidden;
+    margin: 0 auto;
+  }
+
+  .aspect-9-16-fallback iframe,
+  .aspect-9-16-fallback video,
+  .aspect-9-16-fallback img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Property video styling for 9:16 (like Reels for CRE) */
+  .video-portrait {
+    aspect-ratio: 9 / 16;
+    width: 100%;
+    max-width: 360px;
+    border-radius: 16px;
+    object-fit: cover;
+    border: 3px solid rgba(0, 209, 255, 0.5) !important;
+    box-shadow: 0 0 20px rgba(0, 209, 255, 0.2);
+  }
+
+  .video-portrait:hover {
+    border-color: var(--border-purple) !important;
+    box-shadow: 0 0 25px rgba(194, 0, 131, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  /* CREMARKET-style video container with gradient border */
+  .video-container-cremarket {
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+    aspect-ratio: 9 / 16;
+    margin: 0 auto;
+    border-radius: 18px;
+    padding: 3px;
+    background: linear-gradient(135deg, var(--border-blue), var(--border-purple));
+    box-shadow: 0 0 30px rgba(194, 0, 131, 0.2);
+  }
+
+  .video-container-cremarket video {
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    object-fit: cover;
+    background: var(--base-200);
+  }
+
+  /* Property reel card */
+  .property-reel {
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+    aspect-ratio: 9 / 16;
+    margin: 0 auto;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 2px solid rgba(0, 209, 255, 0.3);
+    background: var(--base-200);
+  }
+
+  .property-reel img,
+  .property-reel video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .property-reel-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2rem 1rem 1rem;
+    background: linear-gradient(to top, rgba(6, 3, 26, 0.9), transparent);
+    color: white;
+  }
+
+  .property-reel-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .property-reel-price {
+    color: var(--primary);
+    font-weight: 600;
+  }
+}
+
+@layer utilities {
+  /* Border utilities */
+  .border-blue {
+    border-color: var(--border-blue) !important;
+  }
+  
+  .border-purple {
+    border-color: var(--border-purple) !important;
+  }
+  
+  .border-red {
+    border-color: var(--border-red) !important;
+  }
+  
+  /* Force override any black/gray borders */
+  .border-black,
+  .border-gray-800,
+  .border-gray-900,
+  .border-neutral-300,
+  .border-base-300 {
+    border-color: rgba(0, 209, 255, 0.3) !important;
+  }
+  
+  /* Border width utilities */
+  .border-1 { border-width: 1px; }
+  .border-2 { border-width: 2px; }
+  .border-3 { border-width: 3px; }
+  .border-4 { border-width: 4px; }
+  
+  /* 9:16 aspect ratio utilities */
+  .aspect-9-16 {
+    aspect-ratio: 9 / 16;
+  }
+  
+  /* Max width for portrait content */
+  .max-w-reel {
+    max-width: 360px;
+  }
+  
+  /* Center reel content */
+  .reel-center {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .aspect-9-16,
+  .video-portrait,
+  .video-container-cremarket,
+  .property-reel {
+    max-width: 100%;
+  }
+}

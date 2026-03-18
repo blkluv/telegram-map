@@ -1,0 +1,51 @@
+---
+import "@/styles/global.css";
+
+import BaseHead from "@/components/head/BaseHead.astro";
+import { ViewTransitions } from 'astro:transitions';
+import Footer from "@/components/sections/Footer.astro";
+
+const bodyClasses = [
+  // Base styling - content container
+  "mx-auto min-h-screen max-w-screen-sm p-3 font-sans sm:p-6"
+].join(" ");
+
+const htmlClasses = [
+  // Full viewport gradient background
+  "bg-gradient-to-b from-bg-top to-bg-bottom bg-fixed min-h-screen"
+].join(" ");
+---
+
+<html lang="en" data-theme="treelink-light" class={htmlClasses}>
+  <BaseHead>
+    <slot name="head" />
+    <ViewTransitions />
+  </BaseHead>
+  <body class={bodyClasses}>
+    <main>
+      <slot />
+    </main>
+    <Footer />
+    
+    <script>
+      // Automatically switch theme based on system preference
+      function setThemeFromSystem() {
+        const html = document.documentElement;
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          html.setAttribute('data-theme', 'treelink-dark');
+        } else {
+          html.setAttribute('data-theme', 'treelink-light');
+        }
+      }
+      
+      // Set theme on initial load
+      setThemeFromSystem();
+      
+      // Listen for changes in system preference
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setThemeFromSystem);
+
+      // Set theme on page transition
+      document.addEventListener('astro:after-swap', setThemeFromSystem);
+    </script>
+  </body>
+</html>

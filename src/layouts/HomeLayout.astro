@@ -1,0 +1,26 @@
+---
+import { SITE } from "@/siteConfig";
+
+import Introduction from "@/components/ui/Introduction.astro";
+import IconLink from "@/components/ui/IconLink.astro";
+import CustomLink from "@/components/ui/CustomLink.astro";
+---
+
+<Introduction />
+<ul
+  class="flex flex-wrap justify-center gap-2 md:gap-4 py-2 sm:py-4 md:py-6"
+  data-testid="icon-links-container"
+>
+  {
+    SITE.iconLinks.map((link) => (
+      <IconLink url={link.url} icon={link.icon} color={link.color} />
+    ))
+  }
+</ul>
+<ul class="grid gap-y-6 pb-8 sm:pb-12 pt-4" data-testid="custom-links-container">
+  {
+    SITE.customLinks.map((link) => {
+      return <CustomLink link={link} />;
+    })
+  }
+</ul>

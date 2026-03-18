@@ -1,0 +1,70 @@
+{
+  "name": "Test Site",
+  "bio": "Test Bio",
+  "profilePicture": "/profile-picture.jpg",
+  "url": "https://test.example.com",
+  "isBlogDisplayed": true,
+  "blogHomePostLimit": 3,
+  "contactFormEnabled": true,
+  "web3FormsAccessKey": "test-key",
+  "umamiWebsiteId": "test-id",
+  "iconLinks": [
+    {
+      "id": "1",
+      "icon": "github",
+      "url": "https://github.com/test",
+      "color": "base"
+    },
+    {
+      "id": "2",
+      "icon": "linkedin",
+      "url": "https://linkedin.com/in/test",
+      "color": "base"
+    }
+  ],
+  "customLinks": [
+    {
+      "id": "1",
+      "title": "First Link",
+      "description": "First link description",
+      "url": "/first",
+      "icon": "link",
+      "color": "base"
+    },
+    {
+      "id": "2",
+      "title": "Second Link",
+      "url": "/second",
+      "icon": "link",
+      "color": "primary"
+    },
+    {
+      "id": "3",
+      "title": "Third Link",
+      "description": "Third link description",
+      "url": "/third",
+      "icon": "link",
+      "color": "secondary"
+    },
+    {
+      "id": "4",
+      "title": "Google Rated 4.9/5 Stars",
+      "description": "4,000+ Reviews",
+      "url": "/carousel",
+      "icon": "link",
+      "color": "base",
+      "carouselImages": [
+        "/quotd-whisk-1.png",
+        "/quotd-whisk-2.jpg",
+        "/quotd-whisk-3.jpg",
+        "/quotd-whisk-4.png"
+      ],
+      "carouselImageAlts": [
+        "Example image 1",
+        "Example image 2",
+        "Example image 3",
+        "Example image 4"
+      ]
+    }
+  ]
+}

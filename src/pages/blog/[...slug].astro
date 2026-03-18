@@ -1,0 +1,251 @@
+---
+import { type CollectionEntry, getCollection } from "astro:content";
+import { Image } from "astro:assets";
+
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import SeoPost from "@/components/head/SeoPost.astro";
+
+import { formatDate } from "@/lib/util";
+import RevisionSelector from "@/components/blog/RevisionSelector.astro";
+import {
+  getLatestEntry,
+  getRevisionMeta,
+  groupBlogEntries,
+  sortRevisionsAscending,
+} from "@/lib/postsService";
+
+interface RevisionOption {
+  id: string;
+  label: string;
+  href: string;
+  date: Date;
+}
+
+interface Props {
+  entry: CollectionEntry<"blog">;
+  revisions: RevisionOption[];
+  selectedRevisionId: string;
+}
+
+export async function getStaticPaths() {
+  const blog = await getCollection("blog");
+  const groups = groupBlogEntries(blog);
+
+  const paths: Array<{ params: { slug: string }; props: Props }> = [];
+
+  for (const [baseSlug, group] of groups) {
+    if (!group.original) continue;
+
+    const sortedRevisions = sortRevisionsAscending(group.revisions);
+
+    const revisionOptions: RevisionOption[] = [
+      {
+        id: "original",
+        label: "Original",
+        href: `/blog/${baseSlug}/original`,
+        date: group.original.data.revisionDate ?? group.original.data.publicationDate,
+      },
+    ];
+
+    for (const revision of sortedRevisions) {
+      const meta = getRevisionMeta(revision);
+      if (!meta.revisionSegment) continue;
+      revisionOptions.push({
+        id: meta.revisionSegment,
+        label: `Revision ${meta.revisionNumber}`,
+        href: `/blog/${revision.slug}`,
+        date: revision.data.revisionDate ?? revision.data.publicationDate,
+      });
+    }
+
+    const latestEntry = getLatestEntry(group);
+    const latestMeta = latestEntry ? getRevisionMeta(latestEntry) : undefined;
+    const latestRevisionId = latestMeta?.revisionSegment ?? "original";
+
+    if (latestEntry) {
+      paths.push({
+        params: { slug: baseSlug },
+        props: {
+          entry: latestEntry,
+          revisions: revisionOptions,
+          selectedRevisionId: latestRevisionId,
+        },
+      });
+    }
+
+    paths.push({
+      params: { slug: `${baseSlug}/original` },
+      props: {
+        entry: group.original,
+        revisions: revisionOptions,
+        selectedRevisionId: "original",
+      },
+    });
+
+    for (const revision of sortedRevisions) {
+      const meta = getRevisionMeta(revision);
+      if (!meta.revisionSegment) continue;
+      paths.push({
+        params: { slug: revision.slug },
+        props: {
+          entry: revision,
+          revisions: revisionOptions,
+          selectedRevisionId: meta.revisionSegment,
+        },
+      });
+    }
+  }
+
+  return paths;
+}
+
+const { entry, revisions, selectedRevisionId } = Astro.props as Props;
+const { Content } = await entry.render();
+const hasRevisionSelector = revisions.length > 1;
+
+const navLinkClasses = [
+  // Base
+  "block py-3 text-lg font-medium uppercase",
+  "underline underline-offset-4",
+
+  // Light mode
+  "text-secondary-content/70 dark:text-primary-content/70",
+
+  // Hover
+  "hover:text-secondary-content dark:hover:text-primary-content",
+].join(" ");
+
+const titleClasses = [
+  // Base
+  "mt-1 md:mt-6 mb-2 flex flex-wrap justify-center text-center text-balance text-4xl font-bold",
+
+  // Light mode
+  "text-secondary-content dark:text-primary-content",
+].join(" ");
+
+const publishDateClasses = [
+  // Base
+  "text-center text-sm",
+
+  // Light mode
+  "text-base-content/50"
+].join(" ");
+
+// revision selector UI is now a separate component
+---
+
+<BaseLayout>
+  <SeoPost slot="head" entry={entry} />
+  <main>
+    <a
+      id="back-link"
+      href="/archive"
+      class={navLinkClasses}
+      >{`← GO BACK`}</a
+    >
+    <h1
+      class={titleClasses}
+    >
+      {entry.data.title}
+    </h1>
+    <p
+      class={publishDateClasses}
+    >
+      Published {formatDate(entry.data.publicationDate)}
+    </p>
+    {entry.data.writtenDate && (
+      <p class={publishDateClasses}>
+        Written on {formatDate(entry.data.writtenDate)}
+      </p>
+    )}
+    {entry.data.revisionDate && (
+      <p class={publishDateClasses}>
+        Revised on {formatDate(entry.data.revisionDate)}
+      </p>
+    )}
+    {hasRevisionSelector && (
+      <RevisionSelector revisions={revisions} selectedRevisionId={selectedRevisionId} />
+    )}
+    {entry.data.actionButtons && entry.data.actionButtons.length > 0 && (
+      <div class="mt-4 md:mt-8 mb-4 flex flex-wrap gap-3 justify-center max-w-2xl mx-auto">
+        {entry.data.actionButtons.map((button) => {
+          const Icon = button.newTab ? "external-link" : "lucide:chevron-right";
+          return (
+            <a
+              href={button.url}
+              target={button.newTab ? "_blank" : undefined}
+              rel={button.newTab ? "noopener noreferrer" : undefined}
+              class="flex items-center justify-center gap-2 flex-1 min-w-[180px] lg:min-w-0 lg:flex-[0_1_calc(50%-0.375rem)] px-6 py-3 rounded-2xl ring-2 transition-colors font-medium bg-secondary-100 text-secondary-content ring-secondary-200 hover:bg-secondary-200 hover:ring-secondary-300 dark:bg-primary-100 dark:text-primary-content dark:ring-primary-200 dark:hover:bg-primary-200 dark:hover:ring-primary-300"
+            >
+              <span>{button.text}</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-colors">
+                {button.newTab ? (
+                  <>
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                  </>
+                ) : (
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                )}
+              </svg>
+            </a>
+          );
+        })}
+      </div>
+    )}
+    {entry.data.image && (
+      <div class="my-6 md:my-12 max-w-2xl mx-auto">
+        <Image
+          src={entry.data.image}
+          alt={entry.data.imageAlt || ""}
+          class="w-full rounded-2xl ring-2 ring-base-200 dark:ring-base-800"
+        />
+      </div>
+    )}
+    <!-- <br class="my-6 opacity-50 border-base-content" /> -->
+    <div class="prose mx-auto my-4 lg:my-12 dark:prose-invert">
+      <Content />
+    </div>
+    <a
+      id="back-link-bottom"
+      href="/archive"
+      class={navLinkClasses}
+      >{`← GO BACK`}</a
+    >
+
+        <script is:inline data-astro-rerun>
+      (function () {
+        const refTargets = {
+          home: "/",
+          archive: "/archive",
+        };
+
+        function updateBackLinks() {
+          const backLinks = document.querySelectorAll("#back-link, #back-link-bottom");
+          if (!backLinks.length) return;
+          const params = new URLSearchParams(window.location.search);
+          const ref = params.get("ref");
+          const target = ref && refTargets[ref] ? refTargets[ref] : "/archive";
+          backLinks.forEach((link) => {
+            if (link instanceof HTMLAnchorElement) {
+              link.href = target;
+            } else {
+              link.setAttribute("href", target);
+            }
+          });
+        }
+
+        updateBackLinks();
+
+        const controller = new AbortController();
+        const { signal } = controller;
+
+        document.addEventListener("astro:page-load", updateBackLinks, { signal });
+        document.addEventListener("astro:after-swap", updateBackLinks, { signal });
+        document.addEventListener("astro:before-swap", () => controller.abort(), { once: true });
+      })();
+    </script>
+
+  </main>
+</BaseLayout>

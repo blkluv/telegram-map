@@ -1,0 +1,369 @@
+---
+import { Icon } from "astro-icon/components";
+const { link } = Astro.props;
+
+// Format tags for display
+const formatTags = (tags: string[] | undefined) => {
+  if (!tags || tags.length === 0) return null;
+  return tags.join(" • ");
+};
+
+// Determine if this is a gradient variant
+const isGradient = link.color?.endsWith('-gradient');
+const baseColor = isGradient ? link.color.replace('-gradient', '') : (link.color || 'base');
+
+// Explicit color mapping to ensure all classes are visible to Tailwind during build
+const COLOR_MAP = {
+  base: {
+    bg: 'bg-base-100',
+    ring: 'ring-base-300/70',
+    hoverBg: 'hover:bg-base-200/70',
+    hoverRing: 'hover:ring-base-300',
+    text: 'text-base-content',
+    subtext: 'text-base-content/70',
+    icon: 'text-base-content/70'
+  },
+  primary: {
+    bg: 'bg-primary-100',
+    ring: 'ring-primary-200',
+    hoverBg: 'hover:bg-primary-200',
+    hoverRing: 'hover:ring-primary-300',
+    text: 'text-primary-content',
+    subtext: 'text-primary-content',
+    icon: 'text-primary-content/70'
+  },
+  secondary: {
+    bg: 'bg-secondary-100',
+    ring: 'ring-secondary-200',
+    hoverBg: 'hover:bg-secondary-200',
+    hoverRing: 'hover:ring-secondary-300',
+    text: 'text-secondary-content',
+    subtext: 'text-secondary-content',
+    icon: 'text-secondary-content/70'
+  },
+  tertiary: {
+    bg: 'bg-tertiary-100',
+    ring: 'ring-tertiary-200',
+    hoverBg: 'hover:bg-tertiary-200',
+    hoverRing: 'hover:ring-tertiary-300',
+    text: 'text-tertiary-content',
+    subtext: 'text-tertiary-content',
+    icon: 'text-tertiary-content/70'
+  },
+  accent: {
+    bg: 'bg-accent-100',
+    ring: 'ring-accent-200',
+    hoverBg: 'hover:bg-accent-200',
+    hoverRing: 'hover:ring-accent-300',
+    text: 'text-accent-content',
+    subtext: 'text-accent-content',
+    icon: 'text-accent-content/70'
+  },
+  neutral: {
+    bg: 'bg-neutral-100',
+    ring: 'ring-neutral-200',
+    hoverBg: 'hover:bg-neutral-200',
+    hoverRing: 'hover:ring-neutral-300',
+    text: 'text-neutral-content',
+    subtext: 'text-neutral-content/70',
+    icon: 'text-neutral-content/70'
+  }
+} as const;
+
+// Gradient color mapping
+const GRADIENT_MAP = {
+  base: {
+    bg: 'bg-gradient-to-br from-base-100-gradient-start to-base-100-gradient-end',
+    ring: 'ring-base-300/70',
+    hoverBg: 'hover:bg-gradient-to-br hover:from-base-200-gradient-start hover:to-base-200-gradient-end',
+    hoverRing: 'hover:ring-base-300',
+    text: 'text-base-content',
+    subtext: 'text-base-content/70',
+    icon: 'text-base-content/70'
+  },
+  primary: {
+    bg: 'bg-gradient-to-br from-primary-100-gradient-start to-primary-100-gradient-end',
+    ring: 'ring-primary-200',
+    hoverBg: 'hover:bg-gradient-to-br hover:from-primary-200-gradient-start hover:to-primary-200-gradient-end',
+    hoverRing: 'hover:ring-primary-300',
+    text: 'text-primary-content',
+    subtext: 'text-primary-content',
+    icon: 'text-primary-content/70'
+  },
+  secondary: {
+    bg: 'bg-gradient-to-br from-secondary-100-gradient-start to-secondary-100-gradient-end',
+    ring: 'ring-secondary-200',
+    hoverBg: 'hover:bg-gradient-to-br hover:from-secondary-200-gradient-start hover:to-secondary-200-gradient-end',
+    hoverRing: 'hover:ring-secondary-300',
+    text: 'text-secondary-content',
+    subtext: 'text-secondary-content',
+    icon: 'text-secondary-content/70'
+  },
+  tertiary: {
+    bg: 'bg-gradient-to-br from-tertiary-100-gradient-start to-tertiary-100-gradient-end',
+    ring: 'ring-tertiary-200',
+    hoverBg: 'hover:bg-gradient-to-br hover:from-tertiary-200-gradient-start hover:to-tertiary-200-gradient-end',
+    hoverRing: 'hover:ring-tertiary-300',
+    text: 'text-tertiary-content',
+    subtext: 'text-tertiary-content',
+    icon: 'text-tertiary-content/70'
+  },
+  accent: {
+    bg: 'bg-gradient-to-br from-accent-100-gradient-start to-accent-100-gradient-end',
+    ring: 'ring-accent-200',
+    hoverBg: 'hover:bg-gradient-to-br hover:from-accent-200-gradient-start hover:to-accent-200-gradient-end',
+    hoverRing: 'hover:ring-accent-300',
+    text: 'text-accent-content',
+    subtext: 'text-accent-content',
+    icon: 'text-accent-content/70'
+  },
+  neutral: {
+    bg: 'bg-gradient-to-br from-neutral-100-gradient-start to-neutral-100-gradient-end',
+    ring: 'ring-neutral-200',
+    hoverBg: 'hover:bg-gradient-to-br hover:from-neutral-200-gradient-start hover:to-neutral-200-gradient-end',
+    hoverRing: 'hover:ring-neutral-300',
+    text: 'text-neutral-content',
+    subtext: 'text-neutral-content/70',
+    icon: 'text-neutral-content/70'
+  }
+} as const;
+
+// Get color classes with fallback to base
+const colors = isGradient
+  ? (GRADIENT_MAP[baseColor as keyof typeof GRADIENT_MAP] || GRADIENT_MAP.base)
+  : (COLOR_MAP[baseColor as keyof typeof COLOR_MAP] || COLOR_MAP.base);
+
+// Determine the arrow icon based on download and newTab
+const arrowIcon = link.download ? "download" : (link.newTab ? "external-link" : "lucide:chevron-right");
+
+const linkClasses = link.image || link.video || link.carouselImages
+  ? `flex flex-col rounded-3xl px-6 py-3 text-lg transition-colors ring-2 ${colors.bg} ${colors.text} ${colors.ring} ${colors.hoverBg} ${colors.hoverRing} overflow-hidden`
+  : `flex items-center gap-2 rounded-3xl px-6 py-3 text-lg transition-colors ring-2 ${colors.bg} ${colors.text} ${colors.ring} ${colors.hoverBg} ${colors.hoverRing}`;
+
+// Generate a unique ID for this carousel
+const carouselId = `carousel-${link.id}`;
+
+---
+
+<style>
+  .carousel-container {
+    position: relative;
+    user-select: none;
+  }
+
+  .carousel-track {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+  }
+
+  .carousel-slide {
+    flex: 0 0 100%;
+    width: 100%;
+  }
+
+  .carousel-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    z-index: 10;
+  }
+
+  .carousel-nav-btn:hover {
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  .carousel-nav-btn.prev {
+    left: 0.5rem;
+  }
+
+  .carousel-nav-btn.next {
+    right: 0.5rem;
+  }
+
+  .carousel-container:hover .carousel-nav-btn {
+    opacity: 1;
+  }
+
+  .carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 0 0.25rem 0;
+  }
+
+  .carousel-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.3;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+  }
+
+  .carousel-dot:hover {
+    opacity: 0.6;
+    transform: scale(1.2);
+  }
+
+  .carousel-dot.active {
+    opacity: 1;
+  }
+</style>
+
+<li>
+  <a
+    href={link.url}
+    class={linkClasses}
+    target={link.newTab ? "_blank" : undefined}
+    rel={link.newTab ? "noopener noreferrer" : undefined}
+    download={link.download ? "" : undefined}
+    data-testid="custom-link"
+  >
+    {link.carouselImages && link.carouselImages.length > 0 ? (
+      <div class="mb-3 -mx-6 -mt-3 max-w-[calc(100%+3rem)] carousel-container" data-carousel-id={carouselId} data-testid="carousel-container">
+        <div class="overflow-hidden">
+          <div class="carousel-track" id={carouselId} data-testid="carousel-track">
+            {link.carouselImages.map((img, index) => (
+              <div class="carousel-slide" data-testid="carousel-slide">
+                <img
+                  src={img}
+                  alt={link.carouselImageAlts?.[index] || link.title}
+                  class="w-full object-cover object-center aspect-[3/2]"
+                  data-carousel-first={index === 0 ? "true" : undefined}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+        <button
+          class="carousel-nav-btn prev"
+          aria-label="Previous image"
+          data-testid="carousel-prev"
+        >
+          ‹
+        </button>
+        <button
+          class="carousel-nav-btn next"
+          aria-label="Next image"
+          data-testid="carousel-next"
+        >
+          ›
+        </button>
+        <div class="carousel-dots" data-testid="carousel-dots">
+          {link.carouselImages.map((_, index) => (
+            <button
+              class={`carousel-dot ${index === 0 ? 'active' : ''}`}
+              aria-label={`Go to image ${index + 1}`}
+              data-index={index}
+              data-testid={`carousel-dot-${index}`}
+            />
+          ))}
+        </div>
+      </div>
+    ) : link.image && (
+      <div class="mb-3 -mx-6 -mt-3 max-w-[calc(100%+3rem)]"
+      >
+        {link.imageDark ? (
+          <>
+            <img
+              src={link.image}
+              alt={link.imageAlt || link.title}
+              class="w-full object-cover object-center aspect-[3/2] dark:hidden"
+            />
+            <img
+              src={link.imageDark}
+              alt={link.imageAltDark || link.imageAlt || link.title}
+              class="w-full object-cover object-center aspect-[3/2] hidden dark:block"
+            />
+          </>
+        ) : (
+          <img
+            src={link.image}
+            alt={link.imageAlt || link.title}
+            class="w-full object-cover object-center aspect-[3/2]"
+            onload="
+              const ratio = this.naturalWidth / this.naturalHeight;
+              if (ratio > 3/2) {
+                this.classList.remove('aspect-[3/2]');
+                this.classList.add(`aspect-[${this.naturalWidth}/${this.naturalHeight}]`);
+              }
+            "
+          />
+        )}
+      </div>
+    )}
+    {link.video && (
+  <div class="mb-3 -mx-6 -mt-3 max-w-[calc(100%+3rem)]">
+    <video
+      autoplay
+      loop
+      muted
+      playsinline
+      class={`w-full object-cover object-center ${
+        link.aspectRatio === '9:16' 
+          ? 'aspect-[9/16] max-w-[300px] mx-auto' 
+          : 'aspect-[3/2]'
+      }`}
+    >
+      <source src={link.video} type={`video/${link.video.split('.').pop()}`} />
+    </video>
+    {link.aspectRatio === '9:16' && (
+      <p class="text-xs text-center mt-1 opacity-60">📱</p>
+    )}
+  </div>
+ )}
+    <div class="flex items-center justify-between w-full">
+      <Icon
+        name={link.icon ?? "link"}
+        class={`size-6 transition-colors ${colors.icon}`}
+      />
+      <div class="flex-1 text-center">
+        <p class="font-semibold">
+          {link.title}
+        </p>
+        {link.description ? (
+          <p class={`text-sm line-clamp-4 mx-3 ${colors.subtext}`}>
+            {link.description}
+          </p>
+        ) : null}
+        {(link.date || link.tags) && (
+          <div class={`mt-2 text-xs ${colors.subtext} flex flex-wrap justify-center gap-1`}>
+            {link.date && (
+              <span class="px-2 py-1 bg-base-200/50 rounded-full">
+                {link.date}
+              </span>
+            )}
+            {link.tags && formatTags(link.tags) && (
+              <span class="px-2 py-1 bg-base-200/50 rounded-full">
+                {formatTags(link.tags)}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+      <Icon
+        name={arrowIcon}
+        class={`size-6 transition-colors ${colors.icon}`}
+      />
+    </div>
+  </a>
+</li>
+
+<script>
+  import '../../scripts/carousel.ts';
+</script>

@@ -1,0 +1,22 @@
+---
+
+import { SITE } from "@/siteConfig";
+---
+
+<div class="md:mt-8 mt-4 md:py-4 py-2">
+  <img
+    src={SITE.profilePicture}
+    alt={SITE.name}
+    
+    
+    loading="eager"
+    draggable="false"
+    class="mx-auto size-32 rounded-full"
+  >
+  <h1 class="mt-4 text-center text-3xl font-semibold">{SITE.name}</h1>
+  <p
+    class="text-md text-lightModeForegroundMuted dark:text-darkModeForegroundMuted mt-1 text-balance text-center"
+  >
+    {SITE.bio}
+  </p>
+</div>

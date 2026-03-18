@@ -1,0 +1,23 @@
+---
+import { SITE } from "@/siteConfig";
+
+import BaseLayout from "@/layouts/BaseLayout.astro";
+
+import HomeLayout from "@/layouts/HomeLayout.astro";
+import PostList from "@/components/sections/PostList.astro";
+import SeoPage from "@/components/head/SeoPage.astro";
+import Contact from "@/components/sections/Contact.astro";
+---
+
+<BaseLayout>
+  <SeoPage slot="head" />
+  <main>
+    <HomeLayout />
+    { SITE.isBlogDisplayed ? (<PostList />) : null }
+    {
+      SITE.contactFormEnabled ? (
+        <Contact />
+      ) : null
+    }
+  </main>
+</BaseLayout>

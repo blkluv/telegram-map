@@ -1,0 +1,223 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import { Icon } from "astro-icon/components";
+
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import SeoPage from "@/components/head/SeoPage.astro";
+import Post from "@/components/sections/Post.astro";
+import { getBaseEntries } from "@/lib/postsService";
+
+// Use test blog content when building the Playwright test site, otherwise
+// use the real blog collection.
+const useTestBlog = typeof process !== 'undefined' && process.env.PUBLIC_USE_TEST_BLOG === 'true';
+const blogCollectionName = useTestBlog ? 'blog-test' : 'blog';
+const posts = getBaseEntries(await getCollection(blogCollectionName as any));
+
+// Render all posts unsorted - client-side JS will handle sorting/filtering
+const allPosts = posts;
+
+// Styling classes matching the site's aesthetic
+const selectClasses = [
+  // Base styling with rounded corners
+  "px-4 py-3 rounded-lg outline-none focus:ring-4 transition-colors border",
+  
+  // DaisyUI semantic colors
+  "bg-base-100 text-base-content border-base-300",
+  "focus:border-base-300/70 focus:ring-base-300/70",
+  
+  // Custom select styling
+  "appearance-none cursor-pointer"
+].join(" ");
+
+const inputClasses = [
+  // Base styling with rounded corners
+  "px-4 py-3 rounded-lg outline-none focus:ring-4 transition-colors border",
+  
+  // DaisyUI semantic colors
+  "bg-base-100 text-base-content border-base-300",
+  "placeholder:text-base-content/60",
+  "focus:border-base-300/70 focus:ring-base-300/70"
+].join(" ");
+
+const labelClasses = [
+  "text-sm font-medium text-base-content/80"
+].join(" ");
+
+const navLinkClasses = [
+  // Base
+  "block py-3 text-lg font-medium uppercase",
+  "underline underline-offset-4",
+  
+  // Light mode
+  "text-secondary-content/70 dark:text-primary-content/70",
+  
+  // Hover
+  "hover:text-secondary-content dark:hover:text-primary-content",
+].join(" ");
+---
+
+<BaseLayout>
+  <SeoPage slot="head" title="Archive" description="Browse all posts" />
+  <main>
+    <a
+      href="/"
+      class={navLinkClasses}
+      >{`← GO BACK`}</a
+    >
+    <section class="py-8">
+      <h1 class="text-3xl font-bold text-secondary-content dark:text-primary-content">Archive</h1>
+      <p class="mt-1 text-base-content/70"><span id="archive-count">{allPosts.length}</span> posts</p>
+
+      <div id="archive-controls" class="mt-8 p-6 bg-base-100 rounded-3xl ring-2 ring-base-300/70 shadow-sm">
+        <div class="grid gap-4 sm:grid-cols-2 sm:items-center">
+          <div class="flex flex-col gap-2 min-w-0">
+            <label for="sort" class={labelClasses}>Sort by</label>
+            <div class="relative w-full">
+              <select id="sort" class={`${selectClasses} w-full pr-10`} data-testid="archive-sort">
+                <option value="default">Featured</option>
+                <option value="title-asc">Title (A–Z)</option>
+                <option value="title-desc">Title (Z–A)</option>
+                <option value="date-newest">Date (newest)</option>
+                <option value="date-oldest">Date (oldest)</option>
+              </select>
+              <Icon 
+                id="sort-chevron"
+                name="lucide:chevron-down" 
+                class="absolute right-3 top-1/2 -translate-y-1/2 size-5 text-base-content/60 pointer-events-none transition-transform duration-200 ease-in-out"
+              />
+            </div>
+          </div>
+          
+          <div class="flex flex-col gap-2 flex-1 min-w-0">
+            <label for="q" class={labelClasses}>Filter posts</label>
+            <input
+              id="q"
+              placeholder="Search by title, content, or tags..."
+              class={`${inputClasses} w-full`}
+              data-testid="archive-search"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <ul id="archive-list" class="flex flex-col gap-4 list-none px-0 py-8">
+      {allPosts.map((post) => (<Post post={post} refFrom="archive" />))}
+    </ul>
+    <script is:inline>
+      // Client-side filtering and sorting
+      (function () {
+        const controls = document.getElementById('archive-controls');
+        if (!controls) return;
+        
+        const input = document.getElementById('q');
+        const select = document.getElementById('sort');
+        const list = document.getElementById('archive-list');
+        const countEl = document.getElementById('archive-count');
+        
+        if (!input || !select || !list) return;
+
+        const items = Array.from(list.children);
+        
+        // Initialize from URL params
+        const params = new URLSearchParams(window.location.search);
+        const initialQuery = params.get('q') || '';
+        const initialSort = params.get('sort') || 'default';
+        
+        input.value = initialQuery;
+        select.value = initialSort;
+
+        function sortItems(sortType) {
+          const sortedItems = [...items].sort((a, b) => {
+            switch (sortType) {
+              case 'title-asc':
+                return (a.dataset.title || '').localeCompare(b.dataset.title || '');
+              case 'title-desc':
+                return (b.dataset.title || '').localeCompare(a.dataset.title || '');
+              case 'date-newest':
+                return new Date(b.dataset.date || 0).getTime() - new Date(a.dataset.date || 0).getTime();
+              case 'date-oldest':
+                return new Date(a.dataset.date || 0).getTime() - new Date(b.dataset.date || 0).getTime();
+              case 'default':
+              default:
+                // Default sort: prioritize sortOrder, then by date (oldest first)
+                const aOrder = parseInt(a.dataset.sortOrder) || null;
+                const bOrder = parseInt(b.dataset.sortOrder) || null;
+                if (aOrder !== null && bOrder !== null) {
+                  return aOrder - bOrder;
+                }
+                if (aOrder !== null) return -1;
+                if (bOrder !== null) return 1;
+                return new Date(a.dataset.date || 0).getTime() - new Date(b.dataset.date || 0).getTime();
+            }
+          });
+          
+          // Re-append items in sorted order
+          sortedItems.forEach(item => list.appendChild(item));
+        }
+
+        function applyFilter() {
+          const query = (input.value || '').trim().toLowerCase();
+          const sortType = select.value || 'default';
+          
+          // First sort items
+          sortItems(sortType);
+          
+          // Then filter
+          let visible = 0;
+          for (const li of items) {
+            // Search across all visible content: title, description, date, tags
+            const title = (li.dataset.title || '').toLowerCase();
+            const description = (li.dataset.description || '').toLowerCase();
+            const formattedDate = (li.dataset.formattedDate || '').toLowerCase();
+            const tags = (li.dataset.tags || '').toLowerCase();
+            
+            const searchableContent = `${title} ${description} ${formattedDate} ${tags}`;
+            const show = query === '' || searchableContent.includes(query);
+            li.style.display = show ? '' : 'none';
+            if (show) visible++;
+          }
+          
+          if (countEl) countEl.textContent = String(visible);
+          
+          // Update URL without reload
+          const newParams = new URLSearchParams();
+          if (query) newParams.set('q', query);
+          if (sortType !== 'default') newParams.set('sort', sortType);
+          
+          const newUrl = `${window.location.pathname}${newParams.toString() ? '?' + newParams.toString() : ''}`;
+          window.history.replaceState({}, '', newUrl);
+        }
+
+        // Event listeners
+        input.addEventListener('input', applyFilter);
+        select.addEventListener('change', applyFilter);
+        
+        // Initialize
+        applyFilter();
+      })();
+    </script>
+  </main>
+</BaseLayout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const sortSelect = document.getElementById('sort') as HTMLSelectElement;
+    const sortChevron = document.getElementById('sort-chevron');
+    
+    if (sortSelect && sortChevron) {
+      // Handle dropdown open/close states
+      sortSelect.addEventListener('mousedown', () => {
+        sortChevron.style.transform = 'translateY(-50%) rotate(180deg)';
+      });
+      
+      sortSelect.addEventListener('blur', () => {
+        sortChevron.style.transform = 'translateY(-50%) rotate(0deg)';
+      });
+      
+      sortSelect.addEventListener('change', () => {
+        sortChevron.style.transform = 'translateY(-50%) rotate(0deg)';
+      });
+    }
+  });
+</script>

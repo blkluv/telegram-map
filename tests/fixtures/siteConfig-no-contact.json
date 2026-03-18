@@ -1,0 +1,28 @@
+{
+  "name": "Test Site",
+  "bio": "Test Bio",
+  "profilePicture": "/profile-picture.jpg",
+  "url": "https://test.example.com",
+  "isBlogDisplayed": true,
+  "blogHomePostLimit": 3,
+  "contactFormEnabled": false,
+  "web3FormsAccessKey": "test-key",
+  "umamiWebsiteId": "test-id",
+  "iconLinks": [
+    {
+      "id": "1",
+      "icon": "github",
+      "url": "https://github.com/test",
+      "color": "base"
+    }
+  ],
+  "customLinks": [
+    {
+      "id": "1",
+      "title": "First Link",
+      "url": "/first",
+      "icon": "link",
+      "color": "base"
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+---
+import { formatDate } from "@/lib/util";
+
+interface RevisionOption {
+  id: string;
+  label: string;
+  href: string;
+  date: Date;
+}
+
+interface Props {
+  revisions: RevisionOption[];
+  selectedRevisionId: string;
+}
+
+const { revisions, selectedRevisionId } = Astro.props as Props;
+
+const selectedOption =
+  revisions?.find((r) => r.id === selectedRevisionId) ?? revisions?.[0];
+
+const selectedRevisionLabel = selectedOption?.label ?? "Original";
+const selectedRevisionDate = selectedOption
+  ? formatDate(selectedOption.date)
+  : undefined;
+
+const dropdownButtonClasses = [
+  "flex w-full items-center gap-2 rounded-full border",
+  "border-base-content/10 bg-base-100/50 px-4 py-2 text-sm",
+  "text-base-content/70 backdrop-blur transition-colors",
+  "hover:border-base-content/25 hover:text-base-content/80",
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-base-content/30",
+].join(" " );
+
+const dropdownMenuClasses = [
+  "absolute right-0 z-20 mt-2 w-64 overflow-hidden rounded-2xl border",
+  "border-base-content/10 bg-base-100/95 p-1.5 shadow-xl backdrop-blur",
+].join(" " );
+
+const dropdownItemClasses = [
+  "flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm",
+  "text-base-content/80 transition-colors",
+  "hover:bg-base-content/5 hover:text-base-content",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content/40",
+].join(" " );
+
+const dropdownContainerClasses = [
+  "mx-auto mt-4 flex w-full max-w-sm items-center justify-center gap-2 px-4",
+  "sm:px-0",
+].join(" " );
+
+const infoTooltipText =
+  "Revisions are made to improve clarity of writing, offer additional insight, or comment on events which have transpired since. For the sake of transparency, past versions will continue to be made available.";
+---
+
+{revisions && revisions.length > 1 && (
+  <div class={dropdownContainerClasses} data-revision-dropdown>
+    <div class="relative w-full">
+      <button
+        type="button"
+        class={dropdownButtonClasses}
+        data-dropdown-trigger
+        aria-haspopup="listbox"
+        aria-expanded="false"
+      >
+        <span class="text-left justify-left flex-1 text-base-content/70">{selectedRevisionLabel}</span>
+        <span class="shrink-0 text-xs text-base-content/55">{selectedRevisionDate}</span>
+        <svg
+          class="ml-2 size-4 text-base-content/50"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+      <div
+        class={`${dropdownMenuClasses} hidden`}
+        data-dropdown-menu
+        role="listbox"
+      >
+        {revisions.map((revision) => (
+          <a
+            href={revision.href}
+            class={`${dropdownItemClasses} ${
+              revision.id === selectedRevisionId ? "bg-base-content/5" : ""
+            }`}
+            aria-selected={revision.id === selectedRevisionId}
+            aria-current={revision.id === selectedRevisionId ? "page" : undefined}
+            role="option"
+          >
+            <span class="flex-1 text-base-content/80">{revision.label}</span>
+            <span class="shrink-0 text-xs text-base-content/60">{formatDate(revision.date)}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+    <div class="relative group">
+      <button
+        type="button"
+        class="flex size-8 items-center justify-center rounded-full border border-base-content/15 text-sm font-semibold text-base-content/70 transition-colors hover:border-base-content/30 hover:text-base-content/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-base-content/30"
+        aria-describedby="revision-info-tooltip"
+      >
+        i
+      </button>
+      <div
+        id="revision-info-tooltip"
+        role="tooltip"
+        class="pointer-events-none absolute left-1/2 top-full z-10 mt-3 hidden w-72 -translate-x-1/2 rounded-2xl border border-base-content/10 bg-base-100/95 p-4 text-xs leading-relaxed text-base-content/70 shadow-xl backdrop-blur group-focus-within:block group-hover:block"
+      >
+        {infoTooltipText}
+      </div>
+    </div>
+  </div>
+)}
+
+<script is:inline>
+  // Re-init after Astro view transitions and on first load
+  function initRevisionDropdown() {
+    const dropdown = document.querySelector('[data-revision-dropdown]');
+    if (!dropdown) return;
+    if (dropdown instanceof HTMLElement && dropdown.dataset.initialized === 'true') return;
+    const trigger = dropdown.querySelector('[data-dropdown-trigger]');
+    const menu = dropdown.querySelector('[data-dropdown-menu]');
+    if (!(trigger instanceof HTMLElement) || !(menu instanceof HTMLElement)) return;
+
+    const controller = new AbortController();
+    const { signal } = controller;
+
+    if (dropdown instanceof HTMLElement) dropdown.dataset.initialized = 'true';
+    const currentSearch = window.location.search;
+    if (currentSearch) {
+      const links = menu.querySelectorAll('a[href]');
+      links.forEach((link) => {
+        const href = link.getAttribute('href');
+        if (!href) return;
+        const url = new URL(href, window.location.origin);
+        if (url.search === currentSearch) return;
+        url.search = currentSearch;
+        link.setAttribute('href', `${url.pathname}${url.search}${url.hash}`);
+      });
+    }
+
+    function closeMenu() {
+      menu.classList.add('hidden');
+      trigger.setAttribute('aria-expanded', 'false');
+    }
+
+    function openMenu() {
+      menu.classList.remove('hidden');
+      trigger.setAttribute('aria-expanded', 'true');
+    }
+
+    trigger.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const isOpen = !menu.classList.contains('hidden');
+      if (isOpen) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    }, { signal });
+
+    document.addEventListener('click', (event) => {
+      const target = event.target;
+      if (target && !dropdown.contains(target)) {
+        closeMenu();
+      }
+    }, { signal });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        closeMenu();
+      }
+    }, { signal });
+
+    // Clean up document listeners on transition
+    document.addEventListener('astro:before-swap', () => controller.abort(), { once: true });
+  }
+
+  // Initialize immediately if DOM is ready, and on transitions
+  if (document.readyState !== 'loading') initRevisionDropdown();
+  else document.addEventListener('DOMContentLoaded', initRevisionDropdown, { once: true });
+  document.addEventListener('astro:page-load', initRevisionDropdown);
+  document.addEventListener('astro:after-swap', initRevisionDropdown);
+</script>
+
+
+
+
+
+
