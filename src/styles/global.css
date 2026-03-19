@@ -406,6 +406,14 @@
     margin-left: auto;
     margin-right: auto;
   }
+
+  /* Tier card image - exact 1024x1024 square */
+  .tier-image {
+    width: 1024px;
+    height: 1024px;
+    object-fit: cover;
+    max-width: 100%; /* for responsiveness */
+  }
 }
 
 /* Responsive adjustments */
