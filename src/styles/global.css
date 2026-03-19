@@ -411,7 +411,7 @@
   .tier-image {
     width: 1024px;
     height: 1024px;
-    object-fit: cover;
+    object-fit: contain;
     max-width: 100%; /* for responsiveness */
   }
 }
