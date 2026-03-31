@@ -10,12 +10,6 @@
   "umamiWebsiteId": "dd667d9f-f9cd-4b59-8c17-c9681858bad7",
   "iconLinks": [
     {
-      "id": "1728534577188",
-      "icon": "shopping-cart",
-      "url": "https://im.page/cre",
-      "color": "base"
-    },
-    {
       "id": "1728534577186",
       "icon": "tiktok",
       "url": "https://www.tiktok.com/@cremarket",
@@ -23,6 +17,13 @@
     }
   ],
     "customLinks": [
+      {
+      "title": "💬 Social.",
+      "description": "Social is a Reddit-like platform for CRE brokers, investors, vendors and tenants with a portal to a video map and AI underwriter (Coming soon). ",
+      "url": "https://social.cremarket.io",
+      "color": "base",
+      "newTab": true
+    },
       {
       "title": "📍 What3Words CRE address",
       "description": "Precise 3‑word address – Every CRE Market property gets a unique What3Words address that matches the TikTok AR effect name, pinpointing exact entrances, loading docks, or development parcels. No more vague directions.",
@@ -91,39 +92,6 @@
       "description": "Access the CRE Marketplace for online and offline deals — We connect principals, brokers, lenders, and investors across the capital stack.",
       "url": "https://im.page/cre",
       "icon": "shopping-cart",
-      "color": "base",
-      "newTab": true
-    },
-    {
-      "title": "1️⃣ Tier",
-      "description": "For 1 property",
-      "url": "https://buy.stripe.com/8x24gz2qt8GWbkX6j75wI1M",
-      "image": "/tier1.jpg",
-      "imageAlt": "Tier 1",
-      "imageDark": "/tier1.jpg",
-      "imageAltDark": "Tier 1",
-      "color": "base",
-      "newTab": true
-    },
-    {
-      "title": "2️⃣ Tier",
-      "description": "For 5 properties",
-      "url": "https://buy.stripe.com/fZu14n7KN9L060D4aZ5wI1N",
-      "image": "/tier2.jpg",
-      "imageAlt": "Tier 2",
-      "imageDark": "/tier2.jpg",
-      "imageAltDark": "Tier 2",
-      "color": "base",
-      "newTab": true
-    },
-    {
-      "title": "3️⃣ Tier",
-      "description": "For 15 properties",
-      "url": "https://buy.stripe.com/aFa28r5CFbT8agT22R5wI1O",
-      "image": "/tier3.jpg",
-      "imageAlt": "Tier 3",
-      "imageDark": "/tier3.jpg",
-      "imageAltDark": "Tier 3",
       "color": "base",
       "newTab": true
     }
